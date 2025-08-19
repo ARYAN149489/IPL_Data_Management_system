@@ -2,9 +2,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const teamSelect = document.getElementById('teamSelect');
     const playerForm = document.getElementById('playerForm');
 
-    const showNotification = (message, type = 'success') => { /* ... same as in index.html ... */ };
+    const showNotification = (message, type = 'success') => {
+        const notifArea = document.getElementById('notification-area');
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        notifArea.appendChild(notification);
+        setTimeout(() => notification.classList.add('show'), 10);
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    };
 
-    const fetchTeams = async () => { /* ... fetches teams and populates the select dropdown ... */ };
+    const fetchTeams = async () => {
+        try {
+            const response = await fetch('/api/teams');
+            const teams = await response.json();
+            teams.forEach(team => {
+                const opt = document.createElement('option');
+                opt.value = team.teamId;
+                opt.textContent = team.tName;
+                teamSelect.appendChild(opt);
+            });
+        } catch (err) {
+            showNotification('Failed to load teams.', 'error');
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();

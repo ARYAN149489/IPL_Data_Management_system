@@ -5,15 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Match - IPL Database</title>
     <script src="/js/add-match.js" defer></script>
-    <!-- Styles and fonts are the same as index.html -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .header-bg { background: linear-gradient(90deg, #004c93 0%, #1e5799 50%, #d1ab3e 100%); }
+        .notification { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 0.5rem; color: white; z-index: 1000; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease-in-out; }
+        .notification.show { opacity: 1; transform: translateY(0); }
+        .notification.success { background-color: #28a745; }
+        .notification.error { background-color: #dc3545; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Header and notification area are the same as index.html -->
+    <div id="notification-area"></div>
+    <header class="header-bg text-white py-4 shadow-lg">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <h1 class="text-3xl font-bold tracking-tight">IPL Dashboard</h1>
+            <nav>
+                <ul class="flex space-x-6 text-lg">
+                    <li><a href="/" class="font-medium hover:text-yellow-300 transition-colors">Player Stats</a></li>
+                    <li><a href="/add-match" class="font-medium hover:text-yellow-300 transition-colors">Add Match</a></li>
+                    <li><a href="/add-player" class="font-medium hover:text-yellow-300 transition-colors">Add Player</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
     <main class="container mx-auto px-4 py-8">
         <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md">
             <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-4">Record New Match</h2>
             <form id="matchForm" class="space-y-6">
-                <!-- Match Details Section -->
                 <fieldset class="border p-4 rounded-lg">
                     <legend class="text-lg font-semibold px-2">Match Details</legend>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
@@ -27,7 +52,6 @@
                         <select name="winnerId" id="winner" required class="border p-3 rounded-lg w-full bg-white focus:ring-2 focus:ring-blue-500"><option value="">Select Winner</option></select>
                     </div>
                 </fieldset>
-                <!-- Player Performances Section -->
                 <fieldset class="border p-4 rounded-lg">
                     <legend class="text-lg font-semibold px-2">Player Performances</legend>
                     <div id="player-performance-section" class="mt-4 space-y-4">
@@ -37,7 +61,7 @@
                 <div class="flex justify-end">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-lg transition-transform transform hover:scale-105 flex items-center">
                         <span id="submit-text">Submit Match</span>
-                        <div id="submit-loader" class="loader ml-2" style="display: none; width: 24px; height: 24px;"></div>
+                        <div id="submit-loader" class="loader ml-2"></div>
                     </button>
                 </div>
             </form>
