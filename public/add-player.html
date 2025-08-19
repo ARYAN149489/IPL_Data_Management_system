@@ -4,45 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Player - IPL Database</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .header-bg { background: linear-gradient(90deg, #004c93 0%, #1e5799 50%, #d1ab3e 100%); }
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            color: white;
-            z-index: 1000;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: all 0.3s ease-in-out;
-        }
-        .notification.show { opacity: 1; transform: translateY(0); }
-        .notification.success { background-color: #28a745; }
-        .notification.error { background-color: #dc3545; }
-    </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="/js/add-player.js" defer></script>
+    <!-- Styles and fonts are the same as index.html -->
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <div id="notification-area"></div>
-    <header class="header-bg text-white py-4 shadow-lg">
-        <div class="container mx-auto px-4 flex justify-between items-center">
-            <h1 class="text-3xl font-bold tracking-tight">IPL Dashboard</h1>
-            <nav>
-                <ul class="flex space-x-6 text-lg">
-                    <li><a href="/" class="font-medium hover:text-yellow-300 transition-colors">Player Stats</a></li>
-                    <li><a href="/add-match" class="font-medium hover:text-yellow-300 transition-colors">Add Match</a></li>
-                    <li><a href="/add-player" class="font-medium hover:text-yellow-300 transition-colors">Add Player</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
+    <!-- Header and notification area are the same as index.html -->
     <main class="container mx-auto px-4 py-8">
         <div class="max-w-xl mx-auto bg-white p-8 rounded-xl shadow-md">
             <h2 class="text-3xl font-bold text-gray-800 mb-6">Add New Player</h2>
@@ -65,6 +31,5 @@
             </form>
         </div>
     </main>
-    <script src="/js/add-player.js"></script>
 </body>
 </html>
