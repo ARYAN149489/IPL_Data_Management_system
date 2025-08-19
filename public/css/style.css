@@ -1,0 +1,10 @@
+body { font-family: 'Inter', sans-serif; }
+.header-bg { background: linear-gradient(90deg, #004c93 0%, #1e5799 50%, #d1ab3e 100%); }
+.tab-active { border-bottom: 3px solid #d1ab3e; color: #1e5799; font-weight: 600; }
+.tab-inactive { border-bottom: 3px solid transparent; color: #4a5568; }
+.loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.notification { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 0.5rem; color: white; z-index: 1000; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease-in-out; }
+.notification.show { opacity: 1; transform: translateY(0); }
+.notification.success { background-color: #28a745; }
+.notification.error { background-color: #dc3545; }

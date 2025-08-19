@@ -1,24 +1,12 @@
-<!-- FILE: public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPL Database - Statistics</title>
+    <title>IPL Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .header-bg { background: linear-gradient(90deg, #004c93 0%, #1e5799 50%, #d1ab3e 100%); }
-        .tab-active { border-bottom: 3px solid #d1ab3e; color: #1e5799; font-weight: 600; }
-        .tab-inactive { border-bottom: 3px solid transparent; color: #4a5568; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .notification { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 0.5rem; color: white; z-index: 1000; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease-in-out; }
-        .notification.show { opacity: 1; transform: translateY(0); }
-        .notification.success { background-color: #28a745; }
-        .notification.error { background-color: #dc3545; }
-    </style>
+    <link href="/css/style.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -27,42 +15,57 @@
     <div id="notification-area"></div>
     <header class="header-bg text-white py-4 shadow-lg">
         <div class="container mx-auto px-4 flex justify-between items-center">
-            <h1 class="text-3xl font-bold tracking-tight">IPL Dashboard</h1>
+            <a href="/" class="text-3xl font-bold tracking-tight">IPL Dashboard</a>
             <nav>
                 <ul class="flex space-x-6 text-lg">
-                    <li><a href="/" class="font-medium hover:text-yellow-300 transition-colors">Player Stats</a></li>
-                    <li><a href="/add-match" class="font-medium hover:text-yellow-300 transition-colors">Add Match</a></li>
+                    <li><a href="/add-team" class="font-medium hover:text-yellow-300 transition-colors">Add Team</a></li>
                     <li><a href="/add-player" class="font-medium hover:text-yellow-300 transition-colors">Add Player</a></li>
+                    <li><a href="/add-match" class="font-medium hover:text-yellow-300 transition-colors">Add Match</a></li>
                 </ul>
             </nav>
         </div>
     </header>
     <main class="container mx-auto px-4 py-8">
-        <div class="border-b border-gray-300 mb-6">
-            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
-                <li class="mr-2"><a href="#" class="inline-block p-4 tab-active data-tab" data-tab="all-players">All Players</a></li>
-                <li class="mr-2"><a href="#" class="inline-block p-4 tab-inactive data-tab" data-tab="top-batters">Top Batters</a></li>
-                <li class="mr-2"><a href="#" class="inline-block p-4 tab-inactive data-tab" data-tab="top-bowlers">Top Bowlers</a></li>
-                <li class="mr-2"><a href="#" class="inline-block p-4 tab-inactive data-tab" data-tab="points-table">Points Table</a></li>
-            </ul>
-        </div>
-        <div id="filter-section" class="mb-6 flex flex-wrap items-center justify-between bg-white p-4 rounded-lg shadow-sm">
-            <div class="flex items-center">
-                <div class="relative">
-                    <input type="text" id="player-search" placeholder="Search players..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content: Stats -->
+            <div class="lg:col-span-2">
+                <div class="border-b border-gray-300 mb-6">
+                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
+                        <li class="mr-2"><a href="#" class="inline-block p-4 tab-active data-tab" data-tab="all-players">All Players</a></li>
+                        <li class="mr-2"><a href="#" class="inline-block p-4 tab-inactive data-tab" data-tab="top-batters">Top Batters</a></li>
+                        <li class="mr-2"><a href="#" class="inline-block p-4 tab-inactive data-tab" data-tab="top-bowlers">Top Bowlers</a></li>
+                    </ul>
                 </div>
-                <select id="team-filter" class="ml-4 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                    <option value="">All Teams</option>
-                </select>
+                <div id="filter-section" class="mb-6 flex flex-wrap items-center justify-between bg-white p-4 rounded-lg shadow-sm">
+                    <div class="flex items-center">
+                        <div class="relative">
+                            <input type="text" id="player-search" placeholder="Search players..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <select id="team-filter" class="ml-4 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="">All Teams</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button id="refresh-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg transition-transform transform hover:scale-105">
+                            <i class="fas fa-sync-alt mr-2"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+                <div id="content-area"></div>
             </div>
-            <div>
-                <button id="refresh-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg transition-transform transform hover:scale-105">
-                    <i class="fas fa-sync-alt mr-2"></i>Refresh
-                </button>
-            </div>
+            <!-- Sidebar: Standings & Recent Matches -->
+            <aside class="lg:col-span-1 space-y-8">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Team Standings</h2>
+                    <div id="points-table-area"></div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Recent Matches</h2>
+                    <div id="recent-matches-area" class="space-y-4"></div>
+                </div>
+            </aside>
         </div>
-        <div id="content-area"></div>
     </main>
     <footer class="bg-gray-800 text-white py-6 mt-8">
         <div class="container mx-auto px-4 text-center">
@@ -70,230 +73,6 @@
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let currentTab = 'all-players';
-            let chartInstances = {};
-            const contentArea = document.getElementById('content-area');
-            const teamFilter = document.getElementById('team-filter');
-            const playerSearch = document.getElementById('player-search');
-
-            const showNotification = (message, type = 'success') => {
-                const notifArea = document.getElementById('notification-area');
-                const notification = document.createElement('div');
-                notification.className = `notification ${type}`;
-                notification.textContent = message;
-                notifArea.appendChild(notification);
-                setTimeout(() => notification.classList.add('show'), 10);
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
-            };
-
-            const showLoader = () => { contentArea.innerHTML = '<div class="loader"></div>'; };
-
-            const fetchData = async (url, errorMessage) => {
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return await response.json();
-                } catch (err) {
-                    console.error(`Error loading data from ${url}:`, err);
-                    showNotification(errorMessage, 'error');
-                    contentArea.innerHTML = `<p class="text-center text-red-500">${errorMessage}</p>`;
-                    return [];
-                }
-            };
-
-            const loadTeams = async () => {
-                const teams = await fetchData('/api/teams', 'Failed to load teams.');
-                teamFilter.innerHTML = '<option value="">All Teams</option>';
-                teams.forEach(team => {
-                    const option = document.createElement('option');
-                    option.value = team.tName;
-                    option.textContent = team.tName;
-                    teamFilter.appendChild(option);
-                });
-            };
-
-            const renderAllPlayers = async () => {
-                const players = await fetchData('/api/players', 'Failed to load players.');
-                if (!players || (players.length === 0 && contentArea.innerHTML.includes('red-500'))) return;
-                const tableHtml = `
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50"><tr>${['Name', 'Team', 'Matches', 'Runs', 'Avg SR', 'Wickets', 'Economy', 'Best'].map(h => `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${h}</th>`).join('')}</tr></thead>
-                            <tbody id="data-table-body" class="bg-white divide-y divide-gray-200">
-                                ${players.map(p => `
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${p.pName}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.tName || '-'}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.matchesPlayed || 0}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.totalRuns || 0}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.avgSr ? parseFloat(p.avgSr).toFixed(2) : '0.00'}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.wickets || 0}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.economy ? parseFloat(p.economy).toFixed(2) : '0.00'}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.best || '-'}</td>
-                                    </tr>`).join('')}
-                            </tbody>
-                        </table>
-                    </div>`;
-                contentArea.innerHTML = tableHtml;
-                filterPlayers();
-            };
-            
-            const renderPointsTable = async () => {
-                const standings = await fetchData('/api/points-table', 'Failed to load points table.');
-                if (!standings || standings.length === 0) return;
-                const tableHtml = `
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50"><tr>${['Pos', 'Team', 'Played', 'Won', 'Lost', 'Points', 'NRR'].map(h => `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${h}</th>`).join('')}</tr></thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                ${standings.map((t, i) => `
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${i + 1}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${t.tName}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${t.matchesPlayed}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${t.wins}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${t.losses}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">${t.points}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${t.nrr ? parseFloat(t.nrr).toFixed(3) : '0.000'}</td>
-                                    </tr>`).join('')}
-                            </tbody>
-                        </table>
-                    </div>`;
-                contentArea.innerHTML = tableHtml;
-            };
-
-            const renderTopStats = async (type) => {
-                const isBatters = type === 'batters';
-                const endpoint = isBatters ? '/api/top-batters' : '/api/top-bowlers';
-                const data = await fetchData(endpoint, `Failed to load top ${type}.`);
-                if (!data || data.length === 0) return;
-                
-                const title = isBatters ? 'Top Run Scorers' : 'Top Wicket Takers';
-                const headers = isBatters ? ['Rank', 'Name', 'Team', 'Runs', 'Avg SR'] : ['Rank', 'Name', 'Team', 'Wickets', 'Economy', 'Best'];
-                const rows = data.map((p, i) => `
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-2 text-sm font-medium text-gray-900">${i + 1}</td>
-                        <td class="px-4 py-2 text-sm font-medium text-gray-900">${p.pName}</td>
-                        <td class="px-4 py-2 text-sm text-gray-500">${p.tName}</td>
-                        ${isBatters ? `
-                            <td class="px-4 py-2 text-sm text-gray-500">${p.totalRuns}</td>
-                            <td class="px-4 py-2 text-sm text-gray-500">${p.avgSr ? parseFloat(p.avgSr).toFixed(2) : '0.00'}</td>
-                        ` : `
-                            <td class="px-4 py-2 text-sm text-gray-500">${p.wickets}</td>
-                            <td class="px-4 py-2 text-sm text-gray-500">${p.economy ? parseFloat(p.economy).toFixed(2) : '0.00'}</td>
-                            <td class="px-4 py-2 text-sm text-gray-500">${p.best || '-'}</td>
-                        `}
-                    </tr>`).join('');
-
-                const chartTitle = isBatters ? 'Top 5 Run Scorers' : 'Top 5 Wicket Takers';
-                const chartLabel = isBatters ? 'Total Runs' : 'Wickets';
-                const chartData = data.slice(0, 5).map(p => isBatters ? p.totalRuns : p.wickets);
-                const chartLabels = data.slice(0, 5).map(p => p.pName);
-
-                // *** FIX: Improved responsive layout for the chart ***
-                const layoutHtml = `
-                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                        <div class="lg:col-span-3 bg-white p-4 rounded-lg shadow-md">
-                            <h2 class="text-xl font-semibold text-gray-800 mb-4">${title}</h2>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50"><tr>${headers.map(h => `<th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${h}</th>`).join('')}</tr></thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">${rows}</tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="lg:col-span-2 bg-white p-4 rounded-lg shadow-md">
-                            <h2 class="text-xl font-semibold text-gray-800 mb-4">${chartTitle}</h2>
-                            <div class="relative h-80">
-                                <canvas id="stats-chart"></canvas>
-                            </div>
-                        </div>
-                    </div>`;
-                contentArea.innerHTML = layoutHtml;
-                createChart('stats-chart', chartLabels, chartData, chartLabel);
-            };
-
-            const createChart = (canvasId, labels, data, label) => {
-                if (chartInstances[canvasId]) {
-                    chartInstances[canvasId].destroy();
-                }
-                const ctx = document.getElementById(canvasId).getContext('2d');
-                chartInstances[canvasId] = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: label,
-                            data: data,
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    // *** FIX: Ensure chart is responsive and fills the container ***
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false, 
-                        scales: { y: { beginAtZero: true } }, 
-                        plugins: { legend: { display: false } } 
-                    }
-                });
-            };
-
-            const filterPlayers = () => {
-                const searchText = playerSearch.value.toLowerCase();
-                const selectedTeam = teamFilter.value;
-                const rows = document.querySelectorAll('#data-table-body tr');
-                
-                rows.forEach(row => {
-                    const name = row.children[0].textContent.toLowerCase();
-                    const team = row.children[1].textContent;
-                    const nameMatch = name.includes(searchText);
-                    const teamMatch = !selectedTeam || team === selectedTeam;
-                    row.style.display = (nameMatch && teamMatch) ? '' : 'none';
-                });
-            };
-
-            const handleTabClick = (e) => {
-                e.preventDefault();
-                const tabLink = e.target;
-                if (tabLink.classList.contains('tab-active')) return;
-                document.querySelectorAll('.data-tab').forEach(t => t.classList.replace('tab-active', 'tab-inactive'));
-                tabLink.classList.replace('tab-inactive', 'tab-active');
-                currentTab = tabLink.getAttribute('data-tab');
-                document.getElementById('filter-section').style.display = (currentTab === 'all-players') ? 'flex' : 'none';
-                loadTabData();
-            };
-
-            const loadTabData = () => {
-                showLoader();
-                switch (currentTab) {
-                    case 'all-players': renderAllPlayers(); break;
-                    case 'top-batters': renderTopStats('batters'); break;
-                    case 'top-bowlers': renderTopStats('bowlers'); break;
-                    case 'points-table': renderPointsTable(); break;
-                }
-            };
-
-            const init = () => {
-                document.querySelectorAll('.data-tab').forEach(tab => tab.addEventListener('click', handleTabClick));
-                document.getElementById('refresh-btn').addEventListener('click', () => {
-                    loadTabData();
-                    showNotification('Data refreshed!', 'success');
-                });
-                playerSearch.addEventListener('input', filterPlayers);
-                teamFilter.addEventListener('change', filterPlayers);
-                document.getElementById('copyright-year').textContent = new Date().getFullYear();
-                loadTeams();
-                loadTabData();
-            };
-            init();
-        });
-    </script>
+    <script src="/js/main.js"></script>
 </body>
 </html>

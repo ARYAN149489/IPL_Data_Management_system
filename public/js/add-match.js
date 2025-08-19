@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const matchForm = document.getElementById('matchForm');
     const submitLoader = document.getElementById('submit-loader');
     const submitText = document.getElementById('submit-text');
-    let allTeams = [], team1Players = [], team2Players = [];
+    const matchNumberDisplay = document.getElementById('match-number-display');
+    let allTeams = [], team1Players = [], team2Players = [], nextMatchNumber = 0;
 
     const showNotification = (message, type = 'success') => {
         const notifArea = document.getElementById('notification-area');
@@ -17,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => notification.classList.add('show'), 10);
         setTimeout(() => {
             notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
+            setTimeout(() => notification.remove(), 3000);
         }, 3000);
     };
 
@@ -28,26 +29,38 @@ document.addEventListener('DOMContentLoaded', () => {
             return await response.json();
         } catch (err) {
             showNotification(errorMessage, 'error');
-            return [];
+            return null;
         }
     };
 
-    const fetchTeams = async () => {
-        allTeams = await fetchData('/api/teams', 'Failed to fetch teams.');
-        [team1Select, team2Select, winnerSelect].forEach(select => {
-            select.length = 1;
-            allTeams.forEach(team => {
-                const opt = document.createElement('option');
-                opt.value = team.teamId;
-                opt.textContent = team.tName;
-                select.appendChild(opt);
+    const fetchInitialData = async () => {
+        const [teams, matchNumData] = await Promise.all([
+            fetchData('/api/teams', 'Failed to fetch teams.'),
+            fetchData('/api/next-match-number', 'Failed to fetch next match number.')
+        ]);
+        
+        if (teams) {
+            allTeams = teams;
+            [team1Select, team2Select].forEach(select => {
+                select.length = 1;
+                allTeams.forEach(team => {
+                    const opt = document.createElement('option');
+                    opt.value = team.teamId;
+                    opt.textContent = team.tName;
+                    select.appendChild(opt);
+                });
             });
-        });
+        }
+
+        if (matchNumData) {
+            nextMatchNumber = matchNumData.next_match_no;
+            matchNumberDisplay.textContent = `#${nextMatchNumber}`;
+        }
     };
 
     const fetchPlayersForTeam = async (teamId) => {
         if (!teamId) return [];
-        return await fetchData(`/api/teams/${teamId}/players`, `Failed to fetch players for team.`);
+        return await fetchData(`/api/teams/${teamId}/players`, `Failed to fetch players.`);
     };
 
     const renderPerformanceUI = () => {
@@ -119,12 +132,14 @@ document.addEventListener('DOMContentLoaded', () => {
         submitText.textContent = 'Submitting...';
         const formData = new FormData(matchForm);
         const data = {
-            matchNo: formData.get('matchNo'),
+            matchNo: nextMatchNumber,
             matchDate: formData.get('matchDate'),
             team1Id: formData.get('team1Id'),
             team2Id: formData.get('team2Id'),
             team1Score: formData.get('team1Score'),
             team2Score: formData.get('team2Score'),
+            team1Extras: parseInt(formData.get('team1Extras') || 0),
+            team2Extras: parseInt(formData.get('team2Extras') || 0),
             winnerId: formData.get('winnerId'),
             venue: formData.get('venue'),
             playerPerformances: []
@@ -148,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(result.error || 'An unknown error occurred.');
             showNotification(result.message, 'success');
             matchForm.reset();
+            fetchInitialData(); // Refresh match number and other data
             handleTeamChange();
         } catch (err) {
             showNotification(err.message, 'error');
@@ -158,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const init = () => {
-        fetchTeams();
+        fetchInitialData();
         team1Select.addEventListener('change', handleTeamChange);
         team2Select.addEventListener('change', handleTeamChange);
         performanceSection.addEventListener('click', handleAddPlayerClick);

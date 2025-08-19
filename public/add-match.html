@@ -37,19 +37,26 @@
     </header>
     <main class="container mx-auto px-4 py-8">
         <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-4">Record New Match</h2>
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                 <h2 class="text-3xl font-bold text-gray-800">Record New Match</h2>
+                 <div class="text-right">
+                    <p class="text-sm text-gray-500">NEXT MATCH</p>
+                    <p id="match-number-display" class="text-2xl font-bold text-blue-600">Loading...</p>
+                 </div>
+            </div>
             <form id="matchForm" class="space-y-6">
                 <fieldset class="border p-4 rounded-lg">
                     <legend class="text-lg font-semibold px-2">Match Details</legend>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
-                        <input type="number" name="matchNo" placeholder="Match Number" required class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500">
-                        <input type="date" name="matchDate" required class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500">
                         <select name="team1Id" id="team1" required class="border p-3 rounded-lg w-full bg-white focus:ring-2 focus:ring-blue-500"><option value="">Select Team 1</option></select>
                         <select name="team2Id" id="team2" required class="border p-3 rounded-lg w-full bg-white focus:ring-2 focus:ring-blue-500"><option value="">Select Team 2</option></select>
                         <input type="text" name="team1Score" placeholder="Team 1 Score (e.g., 185/5)" required class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500">
                         <input type="text" name="team2Score" placeholder="Team 2 Score (e.g., 186/4)" required class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500">
+                        <input type="number" name="team1Extras" placeholder="Team 1 Extras" required class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500" min="0">
+                        <input type="number" name="team2Extras" placeholder="Team 2 Extras" required class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500" min="0">
+                        <input type="date" name="matchDate" required class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500">
                         <input type="text" name="venue" placeholder="Venue" required class="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500">
-                        <select name="winnerId" id="winner" required class="border p-3 rounded-lg w-full bg-white focus:ring-2 focus:ring-blue-500"><option value="">Select Winner</option></select>
+                         <select name="winnerId" id="winner" required class="border p-3 rounded-lg w-full bg-white focus:ring-2 focus:ring-blue-500 col-span-1 md:col-span-2"><option value="">Select Winner</option></select>
                     </div>
                 </fieldset>
                 <fieldset class="border p-4 rounded-lg">
