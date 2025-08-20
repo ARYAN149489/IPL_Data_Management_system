@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (err) {
             console.error(`Error loading data from ${url}:`, err);
             showNotification(errorMessage, 'error');
+            // Return an empty array on error so the page doesn't get stuck
             return [];
         }
     };
@@ -50,7 +51,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const renderAllPlayers = async () => {
         const players = await fetchData('/api/players', 'Failed to load players.');
-        if (!players || (players.length === 0 && contentArea.innerHTML.includes('red-500'))) return;
+        if (!players || players.length === 0) {
+            contentArea.innerHTML = '<p class="text-center text-gray-500">No players found.</p>';
+            return;
+        }
         const tableHtml = `
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -79,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const renderTeamStandingsTab = async () => {
         const standings = await fetchData('/api/points-table', 'Failed to load points table.');
         if (!standings || standings.length === 0) {
-            teamStandingsContent.innerHTML = '<p>No standings available.</p>';
+            teamStandingsContent.innerHTML = '<p class="text-center text-gray-500">No standings available.</p>';
             return;
         }
         const tableHtml = `
@@ -109,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const renderRecentMatchesTab = async () => {
         const matches = await fetchData('/api/matches/recent', 'Failed to load recent matches.');
         if (!matches || matches.length === 0) {
-            recentMatchesContent.innerHTML = '<p>No recent matches found.</p>';
+            recentMatchesContent.innerHTML = '<p class="text-center text-gray-500">No recent matches found.</p>';
             return;
         }
         recentMatchesContent.innerHTML = `
@@ -141,7 +145,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const isBatters = type === 'batters';
         const endpoint = isBatters ? '/api/top-batters' : '/api/top-bowlers';
         const data = await fetchData(endpoint, `Failed to load top ${type}.`);
-        if (!data || data.length === 0) return;
+        if (!data || data.length === 0) {
+            contentArea.innerHTML = `<p class="text-center text-gray-500">No top ${type} found.</p>`;
+            return;
+        }
         
         const title = isBatters ? 'Top 5 Run Scorers' : 'Top 5 Wicket Takers';
         const headers = isBatters ? ['Rank', 'Name', 'Team', 'Runs', 'Avg SR'] : ['Rank', 'Name', 'Team', 'Wickets', 'Economy', 'Best'];
@@ -225,21 +232,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         currentTab = tabLink.getAttribute('data-tab');
         
-        // Hide all content areas
         contentArea.classList.add('hidden');
         teamStandingsContent.classList.add('hidden');
         recentMatchesContent.classList.add('hidden');
 
-        // Show the correct content area and filter section
-        if (currentTab === 'team-standings') {
+        if (['all-players', 'top-batters', 'top-bowlers'].includes(currentTab)) {
+            contentArea.classList.remove('hidden');
+            filterSection.style.display = 'flex';
+        } else if (currentTab === 'team-standings') {
             teamStandingsContent.classList.remove('hidden');
             filterSection.style.display = 'none';
         } else if (currentTab === 'recent-matches') {
             recentMatchesContent.classList.remove('hidden');
             filterSection.style.display = 'none';
-        } else {
-            contentArea.classList.remove('hidden');
-            filterSection.style.display = 'flex';
         }
         
         loadTabData();
@@ -265,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
         teamFilter.addEventListener('change', filterPlayers);
         document.getElementById('copyright-year').textContent = new Date().getFullYear();
         loadTeams();
-        loadTabData(); // Load the default tab
+        loadTabData();
     };
     init();
 });

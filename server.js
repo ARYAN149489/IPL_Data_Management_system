@@ -1,3 +1,5 @@
+// server.js - IPL DBMS Backend (FINAL VERSION - Corrected)
+
 const express = require('express');
 const { Pool } = require('pg');
 const bodyParser = require('body-parser');
@@ -45,7 +47,6 @@ app.get('/api/teams', async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Database error while fetching teams.' }); }
 });
 
-// NEW: Get a single team's details
 app.get('/api/teams/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -87,14 +88,23 @@ app.get('/api/teams/:teamId/players', async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Database error while fetching players.' }); }
 });
 
+// *** FIX: Corrected the query to select all player stats ***
 app.get('/api/players', async (req, res) => {
   try {
-    const result = await pool.query('SELECT p.player_id, p.p_name, t.t_name FROM "Player" p LEFT JOIN "Team" t ON p.team_id = t.team_id ORDER BY p.p_name');
+    const sql = `
+        SELECT p.player_id, p.p_name, t.t_name, p.matches_played, p.wickets, p.economy, p.best, p.total_runs, p.avg_sr
+        FROM "Player" p
+        LEFT JOIN "Team" t ON p.team_id = t.team_id
+        ORDER BY p.p_name
+    `;
+    const result = await pool.query(sql);
     res.json(toCamelCase(result.rows));
-  } catch (err) { res.status(500).json({ error: 'Database error while fetching players.' }); }
+  } catch (err) { 
+    console.error("Error fetching players:", err);
+    res.status(500).json({ error: 'Database error while fetching players.' }); 
+  }
 });
 
-// NEW: Get a single player's details
 app.get('/api/players/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -150,7 +160,6 @@ app.get('/api/points-table', async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Database error' }); }
 });
 
-// NEW: Get recent matches
 app.get('/api/matches/recent', async (req, res) => {
     try {
         const query = `
@@ -178,7 +187,6 @@ app.post('/api/players', async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Failed to add player.' }); }
 });
 
-// NEW: Add a new team
 app.post('/api/teams', async (req, res) => {
     const { teamName, owner, home, logoUrl } = req.body;
     if (!teamName) {
