@@ -134,3 +134,73 @@ UPDATE "Team" SET "captain_id" = 1 WHERE "team_id" = 1;
 UPDATE "Team" SET "captain_id" = 4 WHERE "team_id" = 2;
 UPDATE "Team" SET "captain_id" = 8 WHERE "team_id" = 3;
 UPDATE "Team" SET "captain_id" = 10 WHERE "team_id" = 4;
+
+-- dummy data---------------
+
+-- Match 1: MI vs CSK
+WITH new_match AS (
+  INSERT INTO "Matches" (match_no, match_date, team1_id, team2_id, team1_score, team2_score, winner_id, man_of_the_match_id, venue)
+  VALUES (1, '2025-04-05', 1, 2, '185/5', '186/4', 2, 6, 'Wankhede Stadium, Mumbai')
+  RETURNING match_id
+)
+INSERT INTO "PlayerMatch" (match_id, player_id, runs_scored, balls_faced, wickets_taken, overs_bowled, runs_conceded)
+VALUES
+  ((SELECT match_id FROM new_match), 1, 45, 30, 0, 0, 0),   -- MI: Rohit Sharma
+  ((SELECT match_id FROM new_match), 3, 25, 20, 0, 0, 0),   -- MI: Suryakumar Yadav
+  ((SELECT match_id FROM new_match), 2, 0, 0, 2, 4.0, 30),  -- MI: Jasprit Bumrah
+  ((SELECT match_id FROM new_match), 6, 80, 55, 0, 0, 0),   -- CSK: Ruturaj Gaikwad (MOM)
+  ((SELECT match_id FROM new_match), 4, 30, 25, 1, 4.0, 35),  -- CSK: Ravindra Jadeja
+  ((SELECT match_id FROM new_match), 5, 20, 15, 0, 0, 0);   -- CSK: MS Dhoni (as player)
+
+
+-- Match 2: RCB vs KKR
+WITH new_match AS (
+  INSERT INTO "Matches" (match_no, match_date, team1_id, team2_id, team1_score, team2_score, winner_id, man_of_the_match_id, venue)
+  VALUES (2, '2025-04-06', 3, 4, '205/3', '195/8', 3, 7, 'M. Chinnaswamy Stadium, Bengaluru')
+  RETURNING match_id
+)
+INSERT INTO "PlayerMatch" (match_id, player_id, runs_scored, balls_faced, wickets_taken, overs_bowled, runs_conceded)
+VALUES
+  ((SELECT match_id FROM new_match), 7, 110, 65, 1, 2.0, 15), -- RCB: Virat Kohli (MOM)
+  ((SELECT match_id FROM new_match), 8, 55, 30, 0, 0, 0),   -- RCB: Faf du Plessis
+  ((SELECT match_id FROM new_match), 9, 25, 15, 2, 4.0, 28),  -- RCB: Glenn Maxwell
+  ((SELECT match_id FROM new_match), 10, 60, 40, 0, 0, 0),  -- KKR: Shreyas Iyer
+  ((SELECT match_id FROM new_match), 11, 45, 20, 1, 4.0, 45), -- KKR: Andre Russell
+  ((SELECT match_id FROM new_match), 12, 10, 8, 3, 4.0, 25);  -- KKR: Sunil Narine
+
+
+-- Match 3: CSK vs RCB
+WITH new_match AS (
+  INSERT INTO "Matches" (match_no, match_date, team1_id, team2_id, team1_score, team2_score, winner_id, man_of_the_match_id, venue)
+  VALUES (3, '2025-04-10', 2, 3, '170/7', '171/2', 3, 8, 'M. A. Chidambaram Stadium, Chennai')
+  RETURNING match_id
+)
+INSERT INTO "PlayerMatch" (match_id, player_id, runs_scored, balls_faced, wickets_taken, overs_bowled, runs_conceded)
+VALUES
+  ((SELECT match_id FROM new_match), 5, 50, 35, 0, 0, 0),   -- CSK: MS Dhoni
+  ((SELECT match_id FROM new_match), 4, 40, 30, 2, 4.0, 33),  -- CSK: Ravindra Jadeja
+  ((SELECT match_id FROM new_match), 7, 80, 55, 0, 0, 0),   -- RCB: Virat Kohli
+  ((SELECT match_id FROM new_match), 8, 60, 40, 0, 0, 0),   -- RCB: Faf du Plessis (MOM)
+  ((SELECT match_id FROM new_match), 9, 15, 10, 3, 4.0, 22);  -- RCB: Glenn Maxwell
+
+-- Match 4: MI vs KKR
+WITH new_match AS (
+  INSERT INTO "Matches" (match_no, match_date, team1_id, team2_id, team1_score, team2_score, winner_id, man_of_the_match_id, venue)
+  VALUES (4, '2025-04-12', 1, 4, '199/4', '198/7', 1, 3, 'Eden Gardens, Kolkata')
+  RETURNING match_id
+)
+INSERT INTO "PlayerMatch" (match_id, player_id, runs_scored, balls_faced, wickets_taken, overs_bowled, runs_conceded)
+VALUES
+  ((SELECT match_id FROM new_match), 1, 70, 45, 0, 0, 0),   -- MI: Rohit Sharma
+  ((SELECT match_id FROM new_match), 3, 90, 50, 0, 0, 0),   -- MI: Suryakumar Yadav (MOM)
+  ((SELECT match_id FROM new_match), 2, 0, 0, 3, 4.0, 28),  -- MI: Jasprit Bumrah
+  ((SELECT match_id FROM new_match), 10, 50, 35, 0, 0, 0),  -- KKR: Shreyas Iyer
+  ((SELECT match_id FROM new_match), 11, 30, 15, 2, 4.0, 40), -- KKR: Andre Russell
+  ((SELECT match_id FROM new_match), 12, 5, 5, 1, 4.0, 30);   -- KKR: Sunil Narine
+
+-- Add extras for all matches
+INSERT INTO "Extras" (match_id, team_id, runs) VALUES
+(1, 1, 10), (1, 2, 5),
+(2, 3, 15), (2, 4, 10),
+(3, 2, 8), (3, 3, 6),
+(4, 1, 12), (4, 4, 13);
