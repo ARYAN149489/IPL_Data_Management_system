@@ -1,7 +1,3 @@
---
--- IPL Database Schema for PostgreSQL (FINAL VERSION)
---
-
 -- Drop existing tables, views, and functions if they exist to start fresh
 DROP TRIGGER IF EXISTS after_playermatch_insert_trigger ON "PlayerMatch";
 DROP TRIGGER IF EXISTS after_match_insert_trigger ON "Matches";
@@ -120,3 +116,21 @@ CREATE OR REPLACE FUNCTION trg_after_playermatch_insert() RETURNS TRIGGER AS $$ 
 CREATE TRIGGER after_playermatch_insert_trigger AFTER INSERT ON "PlayerMatch" FOR EACH ROW EXECUTE PROCEDURE trg_after_playermatch_insert();
 
 CREATE OR REPLACE FUNCTION validate_score_breakdown(p_match_id INT, p_team_id INT, p_total_score_str VARCHAR) RETURNS BOOLEAN AS $$ DECLARE total_player_runs INT; extra_runs INT; calculated_total INT; declared_total INT; BEGIN declared_total := CAST(SPLIT_PART(p_total_score_str, '/', 1) AS INT); SELECT COALESCE(SUM(pm.runs_scored), 0) INTO total_player_runs FROM "PlayerMatch" pm JOIN "Player" p ON pm.player_id = p.player_id WHERE pm.match_id = p_match_id AND p.team_id = p_team_id; SELECT COALESCE(runs, 0) INTO extra_runs FROM "Extras" WHERE match_id = p_match_id AND team_id = p_team_id; calculated_total := total_player_runs + extra_runs; RETURN calculated_total = declared_total; END; $$ LANGUAGE plpgsql;
+
+-- Sample Data
+INSERT INTO "Team" ("t_name", "owner", "t_home", "team_logo_url") VALUES
+('Mumbai Indians', 'Reliance Industries', 'Wankhede Stadium, Mumbai', 'https://bcciplayerimages.s3.ap-south-1.amazonaws.com/ipl/MI/Logos/Roundbig/MIroundbig.png'),
+('Chennai Super Kings', 'India Cements', 'M. A. Chidambaram Stadium, Chennai', 'https://bcciplayerimages.s3.ap-south-1.amazonaws.com/ipl/CSK/logos/Roundbig/CSKroundbig.png'),
+('Royal Challengers Bengaluru', 'United Spirits', 'M. Chinnaswamy Stadium, Bengaluru', 'https://bcciplayerimages.s3.ap-south-1.amazonaws.com/ipl/RCB/Logos/Roundbig/RCBroundbig.png'),
+('Kolkata Knight Riders', 'Red Chillies Entertainment', 'Eden Gardens, Kolkata', 'https://bcciplayerimages.s3.ap-south-1.amazonaws.com/ipl/KKR/Logos/Roundbig/KKRroundbig.png');
+
+INSERT INTO "Player" ("p_name", "team_id") VALUES
+('Rohit Sharma', 1), ('Jasprit Bumrah', 1), ('Suryakumar Yadav', 1),
+('MS Dhoni', 2), ('Ravindra Jadeja', 2), ('Ruturaj Gaikwad', 2),
+('Virat Kohli', 3), ('Faf du Plessis', 3), ('Glenn Maxwell', 3),
+('Shreyas Iyer', 4), ('Andre Russell', 4), ('Sunil Narine', 4);
+
+UPDATE "Team" SET "captain_id" = 1 WHERE "team_id" = 1;
+UPDATE "Team" SET "captain_id" = 4 WHERE "team_id" = 2;
+UPDATE "Team" SET "captain_id" = 8 WHERE "team_id" = 3;
+UPDATE "Team" SET "captain_id" = 10 WHERE "team_id" = 4;
