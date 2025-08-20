@@ -26,7 +26,6 @@
         </div>
     </header>
     <main class="container mx-auto px-4 py-8">
-        <!-- Main Content: Stats -->
         <div class="border-b border-gray-300 mb-6">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
                 <li class="mr-2"><a href="#" class="inline-block p-4 tab-active data-tab" data-tab="all-players">All Players</a></li>
@@ -36,7 +35,7 @@
                 <li class="mr-2"><a href="#" class="inline-block p-4 tab-inactive data-tab" data-tab="recent-matches">Recent Matches</a></li>
             </ul>
         </div>
-        <div id="filter-section" class="mb-6 flex-wrap items-center justify-between bg-white p-4 rounded-lg shadow-sm">
+        <div id="filter-section" class="mb-6 flex-wrap items-center justify-between bg-white p-4 rounded-lg shadow-sm flex">
             <div class="flex items-center">
                 <div class="relative">
                     <input type="text" id="player-search" placeholder="Search players..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -52,15 +51,9 @@
                 </button>
             </div>
         </div>
-        <div id="content-area">
-            <!-- All Players, Top Batters, Top Bowlers content will be injected here -->
-        </div>
-        <div id="team-standings-content" class="hidden">
-            <!-- Team Standings content will be injected here -->
-        </div>
-        <div id="recent-matches-content" class="hidden">
-            <!-- Recent Matches content will be injected here -->
-        </div>
+        <div id="content-area"></div>
+        <div id="team-standings-content" class="hidden"></div>
+        <div id="recent-matches-content" class="hidden"></div>
     </main>
     <footer class="bg-gray-800 text-white py-6 mt-8">
         <div class="container mx-auto px-4 text-center">

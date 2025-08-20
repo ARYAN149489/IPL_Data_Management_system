@@ -1,3 +1,6 @@
+--
+-- IPL Database Schema for PostgreSQL (FINAL VERSION)
+--
 
 -- Drop existing tables, views, and functions if they exist to start fresh
 DROP TRIGGER IF EXISTS after_playermatch_insert_trigger ON "PlayerMatch";
@@ -102,9 +105,6 @@ CREATE TABLE "Extras" (
     CONSTRAINT "fk_extra_match" FOREIGN KEY ("match_id") REFERENCES "Matches" ("match_id") ON DELETE CASCADE,
     CONSTRAINT "fk_extra_team" FOREIGN KEY ("team_id") REFERENCES "Team" ("team_id") ON DELETE CASCADE
 );
-
--- Views, Triggers, and Functions remain the same as the previous version...
--- (The full code for these is included for completeness)
 
 CREATE OR REPLACE VIEW "TopBatters" AS SELECT p.player_id, p.p_name, t.t_name, p.total_runs, p.avg_sr FROM "Player" p JOIN "Team" t ON p.team_id = t.team_id ORDER BY p.total_runs DESC;
 CREATE OR REPLACE VIEW "TopBowlers" AS SELECT p.player_id, p.p_name, t.t_name, p.wickets, p.economy, p.best FROM "Player" p JOIN "Team" t ON p.team_id = t.team_id ORDER BY p.wickets DESC;

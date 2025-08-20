@@ -1,4 +1,4 @@
-// server.js - IPL DBMS Backend (FINAL VERSION - Corrected)
+// server.js - IPL DBMS Backend (FINAL VERSION)
 
 const express = require('express');
 const { Pool } = require('pg');
@@ -88,7 +88,6 @@ app.get('/api/teams/:teamId/players', async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Database error while fetching players.' }); }
 });
 
-// *** FIX: Corrected the query to select all player stats ***
 app.get('/api/players', async (req, res) => {
   try {
     const sql = `

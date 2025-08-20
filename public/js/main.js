@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const teamFilter = document.getElementById('team-filter');
     const playerSearch = document.getElementById('player-search');
     const filterSection = document.getElementById('filter-section');
-    const API_BASE_URL = 'http://localhost:3000'; // Define the base URL for the API
+    const API_BASE_URL = 'http://localhost:3000';
 
     const showNotification = (message, type = 'success') => {
         const notifArea = document.getElementById('notification-area');
@@ -28,13 +28,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const fetchData = async (url, errorMessage) => {
         try {
-            const response = await fetch(`${API_BASE_URL}${url}`); // Use the full URL
+            const response = await fetch(`${API_BASE_URL}${url}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return await response.json();
         } catch (err) {
             console.error(`Error loading data from ${url}:`, err);
             showNotification(errorMessage, 'error');
-            // Return an empty array on error so the page doesn't get stuck
             return [];
         }
     };
