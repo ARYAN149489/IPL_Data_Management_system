@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tableHtml = `
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50"><tr>${['Name', 'Team', 'Matches', 'Runs', 'Avg SR', 'Wickets', 'Economy', 'Best'].map(h => `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${h}</th>`).join('')}</tr></thead>
+                    <thead class="bg-gray-50"><tr>${['Name', 'Team', 'Matches', 'Runs', 'Avg SR', 'Wickets', 'Economy'].map(h => `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${h}</th>`).join('')}</tr></thead>
                     <tbody id="data-table-body" class="bg-white divide-y divide-gray-200">
                         ${players.map(p => `
                             <tr class="hover:bg-gray-50">
@@ -70,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.avgSr ? parseFloat(p.avgSr).toFixed(2) : '0.00'}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.wickets || 0}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.economy ? parseFloat(p.economy).toFixed(2) : '0.00'}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.best || '-'}</td>
                             </tr>`).join('')}
                     </tbody>
                 </table>

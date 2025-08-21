@@ -1,10 +1,14 @@
+--
+-- IPL Database Schema for PostgreSQL (FINAL VERSION with NRR Fix)
+--
+
 -- Drop existing tables, views, and functions if they exist to start fresh
 DROP TRIGGER IF EXISTS after_playermatch_insert_trigger ON "PlayerMatch";
 DROP TRIGGER IF EXISTS after_match_insert_trigger ON "Matches";
 DROP TRIGGER IF EXISTS after_team_insert_trigger ON "Team";
 DROP VIEW IF EXISTS "TeamStandings", "TopBowlers", "TopBatters";
 DROP TABLE IF EXISTS "Extras", "PlayerMatch", "PointsTable", "Matches", "Player", "Team";
-DROP FUNCTION IF EXISTS trg_after_team_insert(), trg_after_match_insert(), trg_after_playermatch_insert(), validate_score_breakdown();
+DROP FUNCTION IF EXISTS trg_after_team_insert(), trg_after_match_insert(), trg_after_playermatch_insert(), validate_score_breakdown(), calculate_nrr(integer);
 
 --
 -- Table structure for table "Team"
@@ -51,6 +55,8 @@ CREATE TABLE "Matches" (
   "man_of_the_match_id" INT,
   "team1_score" VARCHAR(20),
   "team2_score" VARCHAR(20),
+  "team1_overs" DECIMAL(3,1),
+  "team2_overs" DECIMAL(3,1),
   "match_date" DATE,
   "venue" VARCHAR(100),
   CONSTRAINT "fk_match_team1" FOREIGN KEY ("team1_id") REFERENCES "Team" ("team_id") ON DELETE CASCADE,
@@ -109,7 +115,64 @@ CREATE OR REPLACE VIEW "TeamStandings" AS SELECT t.team_id, t.t_name, t.team_log
 CREATE OR REPLACE FUNCTION trg_after_team_insert() RETURNS TRIGGER AS $$ BEGIN INSERT INTO "PointsTable" (team_id) VALUES (NEW.team_id); RETURN NEW; END; $$ LANGUAGE plpgsql;
 CREATE TRIGGER after_team_insert_trigger AFTER INSERT ON "Team" FOR EACH ROW EXECUTE PROCEDURE trg_after_team_insert();
 
-CREATE OR REPLACE FUNCTION trg_after_match_insert() RETURNS TRIGGER AS $$ BEGIN IF NEW.winner_id IS NOT NULL THEN UPDATE "PointsTable" SET "matches_played" = "matches_played" + 1, "wins" = "wins" + 1, "points" = "points" + 2 WHERE "team_id" = NEW.winner_id; IF NEW.winner_id = NEW.team1_id THEN UPDATE "PointsTable" SET "matches_played" = "matches_played" + 1, "losses" = "losses" + 1 WHERE "team_id" = NEW.team2_id; ELSE UPDATE "PointsTable" SET "matches_played" = "matches_played" + 1, "losses" = "losses" + 1 WHERE "team_id" = NEW.team1_id; END IF; ELSE UPDATE "PointsTable" SET "matches_played" = "matches_played" + 1, "points" = "points" + 1 WHERE "team_id" IN (NEW.team1_id, NEW.team2_id); END IF; RETURN NEW; END; $$ LANGUAGE plpgsql;
+-- NEW: Accurate NRR Calculation Function
+CREATE OR REPLACE FUNCTION calculate_nrr(p_team_id INT)
+RETURNS DECIMAL AS $$
+DECLARE
+    total_runs_scored INT;
+    total_overs_faced DECIMAL;
+    total_runs_conceded INT;
+    total_overs_bowled DECIMAL;
+    nrr DECIMAL;
+BEGIN
+    -- Calculate runs scored and overs faced by the team
+    SELECT
+        COALESCE(SUM(CAST(SPLIT_PART(CASE WHEN team1_id = p_team_id THEN team1_score ELSE team2_score END, '/', 1) AS INT)), 0),
+        COALESCE(SUM(CASE WHEN team1_id = p_team_id THEN team1_overs ELSE team2_overs END), 0)
+    INTO total_runs_scored, total_overs_faced
+    FROM "Matches"
+    WHERE team1_id = p_team_id OR team2_id = p_team_id;
+
+    -- Calculate runs conceded and overs bowled by the team
+    SELECT
+        COALESCE(SUM(CAST(SPLIT_PART(CASE WHEN team1_id = p_team_id THEN team2_score ELSE team1_score END, '/', 1) AS INT)), 0),
+        COALESCE(SUM(CASE WHEN team1_id = p_team_id THEN team2_overs ELSE team1_overs END), 0)
+    INTO total_runs_conceded, total_overs_bowled
+    FROM "Matches"
+    WHERE team1_id = p_team_id OR team2_id = p_team_id;
+
+    IF total_overs_faced = 0 OR total_overs_bowled = 0 THEN
+        nrr := 0;
+    ELSE
+        nrr := (total_runs_scored / total_overs_faced) - (total_runs_conceded / total_overs_bowled);
+    END IF;
+
+    RETURN nrr;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION trg_after_match_insert() RETURNS TRIGGER AS $$ 
+BEGIN 
+    IF NEW.winner_id IS NOT NULL THEN 
+        UPDATE "PointsTable" SET "matches_played" = "matches_played" + 1, "wins" = "wins" + 1, "points" = "points" + 2 WHERE "team_id" = NEW.winner_id; 
+        IF NEW.winner_id = NEW.team1_id THEN 
+            UPDATE "PointsTable" SET "matches_played" = "matches_played" + 1, "losses" = "losses" + 1 WHERE "team_id" = NEW.team2_id; 
+        ELSE 
+            UPDATE "PointsTable" SET "matches_played" = "matches_played" + 1, "losses" = "losses" + 1 WHERE "team_id" = NEW.team1_id; 
+        END IF; 
+    ELSE 
+        UPDATE "PointsTable" SET "matches_played" = "matches_played" + 1, "points" = "points" + 1 WHERE "team_id" IN (NEW.team1_id, NEW.team2_id); 
+    END IF; 
+
+    -- Update NRR for both teams
+    UPDATE "PointsTable" SET nrr = calculate_nrr(NEW.team1_id) WHERE team_id = NEW.team1_id;
+    UPDATE "PointsTable" SET nrr = calculate_nrr(NEW.team2_id) WHERE team_id = NEW.team2_id;
+
+    RETURN NEW; 
+END; 
+$$ LANGUAGE plpgsql;
+
 CREATE TRIGGER after_match_insert_trigger AFTER INSERT ON "Matches" FOR EACH ROW EXECUTE PROCEDURE trg_after_match_insert();
 
 CREATE OR REPLACE FUNCTION trg_after_playermatch_insert() RETURNS TRIGGER AS $$ DECLARE total_balls_faced INT; total_runs_scored INT; total_overs_bowled DECIMAL(10,1); total_runs_conceded INT; BEGIN UPDATE "Player" SET "matches_played" = "matches_played" + 1, "total_runs" = "total_runs" + NEW.runs_scored, "wickets" = "wickets" + NEW.wickets_taken WHERE "player_id" = NEW.player_id; SELECT SUM(pm.runs_scored), SUM(pm.balls_faced) INTO total_runs_scored, total_balls_faced FROM "PlayerMatch" pm WHERE pm.player_id = NEW.player_id; IF total_balls_faced > 0 THEN UPDATE "Player" SET "avg_sr" = (total_runs_scored::DECIMAL / total_balls_faced) * 100 WHERE "player_id" = NEW.player_id; END IF; SELECT SUM(pm.overs_bowled), SUM(pm.runs_conceded) INTO total_overs_bowled, total_runs_conceded FROM "PlayerMatch" pm WHERE pm.player_id = NEW.player_id; IF total_overs_bowled > 0 THEN UPDATE "Player" SET "economy" = total_runs_conceded / total_overs_bowled WHERE "player_id" = NEW.player_id; END IF; RETURN NEW; END; $$ LANGUAGE plpgsql;
